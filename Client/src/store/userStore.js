@@ -9,39 +9,50 @@ const useUserStore = create(
       user: null,
 
       setUser: async (userData) => {
+        const loginPromise = axios.post('/Admin/login', {
+          email: userData.email,
+          password: userData.password,
+        });
+
         try {
-          const res = await axios.post('/Admin/login', {
-            email: userData.email,
-            password: userData.password,
+          const res = await toast.promise(loginPromise, {
+            loading: 'Logging in...',
+            success: (res) => res.data.message || 'Login successful',
+            error: (err) =>
+              (err?.response?.data?.message || 'Login failed'),
           });
 
           const user = res.data.user;
           set({ user });
-          toast.success(res.data.message);
           return user._id;
         } catch (error) {
           console.error(error);
-          toast.error(error.response.data.message);
         }
       },
 
       logout: () => {
         set({ user: null });
-        toast.success("Logged out");
+        toast.success('Logged out');
       },
 
       addUser: async (userDetails) => {
+        const addUserPromise = axios.post('/Admin/createAdmin', userDetails);
+
         try {
-            const res = await axios.post('/Admin/createAdmin', userDetails);
-            toast.success(res.data.message);
+          await toast.promise(addUserPromise, {
+            loading: 'Creating user...',
+            success: (res) => res.data.message || 'User created!',
+            error: (err) =>
+              (err?.response?.data?.message || 'Could not create user'),
+          });
         } catch (error) {
-            toast.error(error.response.data.message);
+          console.error(error);
         }
-      }
+      },
     }),
     {
-      name: 'user-storage', // localStorage key
-      partialize: (state) => ({ user: state.user }), // optional: only persist `user`
+      name: 'user-storage',
+      partialize: (state) => ({ user: state.user }),
     }
   )
 );

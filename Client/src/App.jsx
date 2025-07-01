@@ -1,16 +1,24 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./Components/Login";
-import Dashboard from "./Components/Dashboard";
 import Post from "./Components/Post";
+import Customers from "./Components/Customers";
+import AddUser from "./Components/AddUser";
+import Crew from "./Components/Crew";
+import DashboardAdmin from "./Components/DashboardAdmin";
+import ErrorPage from "./Components/ErrorPage";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="*" element={<ErrorPage />} />
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard/:id" element={<Dashboard />} />
+        <Route path="/dashboardAdmin/:id" element={<DashboardAdmin />} />
         <Route path="/post/:id" element={<Post />} />
+        <Route path="/customer/:id" element={<Customers />} />
+        <Route path="/adduser/:id" element={<AddUser />} />
+        <Route path="/crew/:id" element={<Crew />} />
       </Routes>
     </Router>
   )
