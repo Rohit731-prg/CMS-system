@@ -10,7 +10,6 @@ export const createAdmin = async (req, res) => {
     try {
         const isExist = await Admin.findOne({ email });
         if ( isExist ) return res.status(400).send({ message: "Admin already exist" });
-        console.log(role);
         if ( role != 'admin' && role != 'manager') return res.status(400).send({ message: "Invalid role" });
 
         let url = '';

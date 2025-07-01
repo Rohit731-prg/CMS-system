@@ -12,8 +12,9 @@ export const createCrew = async (req, res) => {
         
         const image_URL = await cloudinary.uploader.upload(image);
         const url = image_URL.url;
+        const image_ID = image_URL.public_id;
         
-        const newCrew = new Crew({ name, description, image: url });
+        const newCrew = new Crew({ name, description, image: url, image_ID });
         await newCrew.save();
         
         res.status(201).json({ message: "Crew created successfully" });
@@ -25,7 +26,8 @@ export const createCrew = async (req, res) => {
 export const getAllCrew = async (req, res) => {
     try {
         const crew = await Crew.find();
-        res.status(200).json(crew);
+        const count = await Crew.countDocuments();
+        res.status(200).json({ crew: crew, count: count });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -36,9 +38,33 @@ export const  deleteCrew = async (req, res) => {
     try {
         const crew = await Crew.findById(id);
         if ( !crew ) return res.status(404).send({ message: "Crew not found" });
+
+        const result = await cloudinary.uploader.destroy(crew.image_ID);
+        if ( result.result != "ok" ) return res.status(400).send({ message: "Error deleting image" });
         
         await Crew.findByIdAndDelete(id);
         res.status(200).json({ message: "Crew deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const updateCrew = async (req, res) => {
+    const { id } = req.params;
+    const { name, description, image } = req.body;
+    try {
+        const crew = await Crew.findById(id);
+        if ( !crew ) return res.status(404).send({ message: "Crew not found" });
+        
+        const result = await cloudinary.uploader.destroy(crew.image_ID);
+        if ( result.result != "ok" ) return res.status(400).send({ message: "Error deleting image" });
+        
+        const image_URL = await cloudinary.uploader.upload(image);
+        const url = image_URL.url;
+        const image_ID = image_URL.public_id;
+        
+        await Crew.findByIdAndUpdate(id, { name, description, image: url, image_ID });
+        res.status(200).json({ message: "Crew updated successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -6,6 +6,7 @@ import blogRouter from './src/route/blog.route.js';
 import pressRouter from './src/route/press.route.js';
 import AdminRouter from './src/Admin/admin.route.js';
 import CrewRouter from './src/route/crew.route.js';
+import CustomerRouter from './src/route/customer.route.js';
 
 const port = process.env.PORT;
 
@@ -23,6 +24,7 @@ app.use('/api/Admin', AdminRouter);
 app.use('/api/blog', blogRouter);
 app.use('/api/press', pressRouter);
 app.use('/api/crew', CrewRouter);
+app.use('/api/customer', CustomerRouter);
 
 connectDb().then(() => {
     app.listen(port, () => {
