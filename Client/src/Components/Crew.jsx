@@ -24,6 +24,7 @@ function Crew() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (editCrew) {
+      console.log(editCrew);
       await useCrewStore.getState().updateCrew(editCrew._id, crew);
     } else {
       await useCrewStore.getState().addCrew(crew);
@@ -74,7 +75,7 @@ function Crew() {
               <p className="text-sm text-gray-500">{user?.role}</p>
             </div>
             <button
-              onClick={() => logOut()}
+              onClick={() => handleLogout()}
               className="ml-3 group flex items-center justify-start w-11 h-11 bg-red-500 rounded-full cursor-pointer relative overflow-hidden transition-all duration-200 shadow-lg hover:w-32  active:translate-x-1 active:translate-y-1"
             >
               <div className="flex items-center justify-center w-full transition-all duration-300 group-hover:justify-start group-hover:px-3">
@@ -136,6 +137,7 @@ function Crew() {
               <div className="col-span-1">
                 <label className="text-sm text-gray-600 mb-1 block">Name</label>
                 <input
+                  required
                   type="text"
                   value={crew.name}
                   onChange={(e) => setCrew({ ...crew, name: e.target.value })}
@@ -148,6 +150,7 @@ function Crew() {
                 <label className="text-sm text-gray-600 mb-1 block">Role</label>
                 <input
                   type="text"
+                  required
                   value={crew.description}
                   onChange={(e) =>
                     setCrew({ ...crew, description: e.target.value })
@@ -160,7 +163,7 @@ function Crew() {
               <div className="col-span-1 md:col-span-3 flex justify-end">
                 <button
                   type="submit"
-                  className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
                 >
                   {editCrew ? "Update" : "Submit"}
                 </button>

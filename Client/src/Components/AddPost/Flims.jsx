@@ -1,139 +1,95 @@
-import React, { useState } from "react";
-import { IoIosAddCircle } from "react-icons/io";
+import React, { useEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
+import AddFiml from "./AddFims";
+import useFilmStore from "../../store/filmStore";
+import EditFilm from "./EditFilm";
+import { MdDelete } from "react-icons/md";
 
 function Flims() {
-  const [showForm, setShowForm] = useState(false);
-  const [fime, setFilms] = useState({
-    name: "",
-    description: "",
-    date: "",
-    location: "",
-    template: null,
-    video: null,
-    photos: [],
-  });
+  const [addFilm, setAddFilm] = useState(false);
+  const [editFilm, setEditFilm] = useState(false);
+  const films = useFilmStore((state) => state.film);
+  const [id, setId] = useState(null);
 
-  const handelSubmit = (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    useFilmStore.getState().getFilms();
+  }, []);
+
+  const openEditFilm = (id) => {
+    setId(id);
+    setEditFilm(true);
   };
-
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <section className="max-w-6xl mx-auto mb-10">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">Films</h2>
-          <button
-            onClick={() => {
-              setShowForm((prev) => !prev);
-              if (!showForm) {
-                // setEditMode(false);
-                setFilms({
-                  name: "",
-                  description: "",
-                  date: "",
-                  location: "",
-                  template: null,
-                  video: null,
-                  photos: [],
-                });
-              }
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            {showForm ? "Cancel" : "Add Film"}
-          </button>
-        </div>
-
-        {showForm && (
-          <form
-            onSubmit={handelSubmit}
-            className="bg-white p-6 rounded-xl shadow mb-8 space-y-4"
-          >
-            <div>
-              <label className="block font-medium">Name</label>
-              <input
-                type="text"
-                value={fime.name}
-                onChange={(e) => setBlog({ ...fime, name: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block font-medium">Description</label>
-              <textarea
-                type="text"
-                value={fime.description}
-                onChange={(e) =>
-                  setBlog({ ...fime, description: e.target.value })
-                }
-                className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-500"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium">Date</label>
-                <input
-                  type="date"
-                  value={fime.date}
-                  onChange={(e) => setBlog({ ...fime, date: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block font-medium">Location</label>
-                <input
-                  type="text"
-                  value={fime.location}
-                  onChange={(e) =>
-                    setBlog({ ...fime, location: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium">Template</label>
-                <input type="file" />
-              </div>
-              <div>
-                <label className="block font-medium">Video</label>
-                <input type="file" />
-              </div>
-            </div>
-
-            <div className="flex flex-row">
-              <div>
-                {fime.photos.map((photo, index) => (
-                  <input key={index} type="file" />
-                ))}
-              </div>
-
-              <button 
-              className="bg-blue-600 text-white w-[80px] h-[80px] rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
-              type="button">
-                  <IoIosAddCircle className="text-3xl" />
-              </button>
-            </div>
+    <>
+      {editFilm && <EditFilm setEditFilm={setEditFilm} id={id} />}
+      {!editFilm && (
+        <main className="min-h-screen bg-gray-100 p-6">
+          <nav className="flex flex-row gap-10 px-10">
+            <input
+              placeholder="Search..."
+              className="px-4 py-2 rounded-sm outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+              type="text"
+            />
 
             <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              onClick={() => setAddFilm(!addFilm)}
+              className="text-white bg-blue-500 px-3 py-2 rounded-sm cursor-pointer"
             >
-              Submit
+              {addFilm ? "Close" : "Add Film"}
             </button>
-          </form>
-        )}
+          </nav>
 
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="px-4 py-2 w-full sm:w-64 border rounded-lg bg-white focus:ring focus:ring-blue-500"
-          />
-        </div>
-      </section>
-    </main>
+          {addFilm && <AddFiml />}
+          {!addFilm && (
+            <main className="px-10">
+              <p className="text-2xl font-semibold mt-10">All Films</p>
+
+              <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 px-4 md:px-10 py-6">
+                {films && films.length > 0 ? (
+                  films.map((film) => (
+                    <div
+                      key={film._id}
+                      className="relative rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"
+                    >
+                      <img
+                        onClick={() => openEditFilm(film._id)}
+                        src={film.template}
+                        alt={film.name}
+                        className="w-full h-56 object-cover"
+                      />
+
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm text-white p-4 rounded-b-xl">
+                        <h3 className="text-lg font-semibold">{film.name}</h3>
+                        <div className="flex flex-row justify-between items-end">
+                          <p className="text-sm">
+                            {film.description?.length < 50
+                              ? film.description
+                              : `${film.description.slice(0, 50)}...`}
+                          </p>
+                          <button
+                            onClick={() => useFilmStore.getState().deleteFilm(film._id)}
+                            className="text-white bg-red-500 p-3 rounded-sm transition duration-200 active:bg-red-600"
+                          >
+                              <MdDelete />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-10">
+                    <p className="text-gray-500 text-lg">
+                      No films available. Please add a film.
+                    </p>
+                  </div>
+                )}
+              </section>
+            </main>
+          )}
+          <Toaster />
+        </main>
+      )}
+    </>
   );
 }
 

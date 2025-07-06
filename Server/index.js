@@ -7,6 +7,8 @@ import pressRouter from './src/route/press.route.js';
 import AdminRouter from './src/Admin/admin.route.js';
 import CrewRouter from './src/route/crew.route.js';
 import CustomerRouter from './src/route/customer.route.js';
+import FilmRouter from './src/route/film.route.js';
+import FeedbackRouter from './src/route/feedback.route.js';
 
 const port = process.env.PORT;
 
@@ -25,6 +27,8 @@ app.use('/api/blog', blogRouter);
 app.use('/api/press', pressRouter);
 app.use('/api/crew', CrewRouter);
 app.use('/api/customer', CustomerRouter);
+app.use('/api/film', FilmRouter);
+app.use('/api/feedback', FeedbackRouter);
 
 connectDb().then(() => {
     app.listen(port, () => {

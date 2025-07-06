@@ -11,9 +11,10 @@ export const createPress = async (req, res) => {
         if ( isExist ) return res.status(400).send({ message: "Press already exist" });
 
         const image_URL = await cloudinary.uploader.upload(image);
-        const url = image_URL.url;
+        const url = image_URL.secure_url;
+        const image_ID = image_URL.public_id;
 
-        const newPress = new Press({ company_name, description, image: url });
+        const newPress = new Press({ company_name, description, image: url, image_ID });
         await newPress.save();
 
         res.status(201).json({ message: "Press created successfully" });

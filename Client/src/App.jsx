@@ -7,6 +7,7 @@ import AddUser from "./Components/AddUser";
 import Crew from "./Components/Crew";
 import DashboardAdmin from "./Components/DashboardAdmin";
 import ErrorPage from "./Components/ErrorPage";
+import Feedback from "./Components/Feedback";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/customer/:id" element={<Customers />} />
         <Route path="/adduser/:id" element={<AddUser />} />
         <Route path="/crew/:id" element={<Crew />} />
+        <Route path="/feedback/:id" element={<Feedback />} />
       </Routes>
     </Router>
   )

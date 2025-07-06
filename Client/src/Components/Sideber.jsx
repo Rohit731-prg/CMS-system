@@ -1,6 +1,6 @@
 import React from "react";
 import logo from "../../public/logo.png";
-import { MdDashboard } from "react-icons/md";
+import { MdDashboard, MdFeedback } from "react-icons/md";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoIosNotifications } from "react-icons/io";
 import { CiLogout } from "react-icons/ci";
@@ -46,6 +46,12 @@ function Sidebar() {
       title: "Crew",
       link: `/crew/${user?._id}`,
     },
+    {
+      id: 5,
+      icon: <MdFeedback size={20} />,
+      title: "Feedback",
+      link: `/feedback/${user?._id}`,
+    },
   ];
 
   const handleLogout = () => {
@@ -54,7 +60,7 @@ function Sidebar() {
   };
 
   return (
-    <aside className="w-64 h-auto bg-white shadow-md flex flex-col">
+    <aside className="w-64 h-auto bg-white shadow-md flex flex-col font-inter">
       {/* Logo */}
       <div className="p-6 border-b border-gray-200 flex justify-center">
         <img src={logo} alt="Logo" className="w-28 object-contain" />

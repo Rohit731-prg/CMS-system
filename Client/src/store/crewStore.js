@@ -22,9 +22,10 @@ const useCrewStore = create((set, get) => ({
   },
 
   addCrew: async (crewDetails) => {
+    console.log(crewDetails);
     const addPromise = axios.post('/crew/createCrew', {
       name: crewDetails.name,
-      description: crewDetails.role,
+      description: crewDetails.description,
       image: crewDetails.image,
     });
 
@@ -58,7 +59,13 @@ const useCrewStore = create((set, get) => ({
   },
 
   updateCrew: async (id, crewDetails) => {
-    const update = axios.put(`/crew/updateCrew/${id}`, crewDetails);
+    if (crewDetails.image === null) return toast.error('Image is required');
+
+    const update = axios.put(`/crew/updateCrew/${id}`, {
+      name: crewDetails.name,
+      description: crewDetails.description,
+      image: crewDetails.image,
+    });
 
     try {
       const res = await toast.promise(update, {
@@ -66,8 +73,7 @@ const useCrewStore = create((set, get) => ({
         success: (res) => res.data.message || 'Crew updated',
         error: (err) => err?.response?.data?.message || 'Failed to update crew',
       })
-      set({ crew: res.data.crew });
-      
+      get().setCrew();
     } catch (error) {
       console.error(error);
     }
