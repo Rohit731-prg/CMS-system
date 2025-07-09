@@ -1,22 +1,79 @@
 import React, { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import useFilmStore from "../../store/filmStore";
+import { IoMdClose, IoMdAddCircle } from "react-icons/io";
+
 
 function EditFilm({ setEditFilm, id }) {
-  const [film, setFilm] = useState(null);
+  const film = useFilmStore((state) => state.singelFilm);
   useEffect(() => {
     async function fetchData() {
-      const data = await useFilmStore.getState().getFilmByID(id);
-      setFilm(data);
+      await useFilmStore.getState().getFilmByID(id);
     }
 
     fetchData();
   }, []);
 
+  const [openModelVideo, setOpenModelVideo] = useState(false);
+  const [openModelDetals, setOpenModelDetails] = useState(false);
+  const [openModelPhotos, setOpenModelPhotos] = useState(false);
+  const [openModelTemplate, setOpenModelTemplate] = useState(false);
+
+  const [fimlBasicDetails, setFimlBasicDetails] = useState({
+    name: "",
+    description: "",
+    date: "",
+    location: "",
+  });
+  const [template, setTemplate] = useState(null);
+  const [video, setVideo] = useState(null);
+
+  const openModel = async (model) => {
+    switch (model) {
+      case 'details': {
+        setFimlBasicDetails({
+          name: film.name,
+          description: film.description,
+          date: film.date,
+          location: film.location,
+        });
+        setOpenModelDetails(true);
+        break;
+      }
+      case 'template': {
+        setOpenModelTemplate(true);
+        break;
+      }
+      case 'video': {
+        setOpenModelVideo(true);
+        break;
+      }
+    }
+  }
+
+  const handelChangeDetails = async (e) => {
+    e.preventDefault();
+    await useFilmStore.getState().updateBasicDetails(film._id, fimlBasicDetails);
+    setOpenModelDetails(false);
+  };
+  const handelTemplateSubmit = async (e) => {
+    e.preventDefault();
+    console.log(template);
+    await useFilmStore.getState().updateTemplate(film._id, template);
+    setOpenModelTemplate(false);
+  };
+  const handelVideoChange = async (e) => {
+    e.preventDefault();
+    console.log(video);
+    await useFilmStore.getState().updateVideo(film._id, video);
+    setVideo(null);
+    setOpenModelVideo(false);
+  }
+
   return (
     <>
       {film && (
-        <main className="min-h-screen bg-gray-100 py-10 px-20 font-inter">
+        <main className="min-h-screen bg-gray-100 py-10 px-20 font-inter relative">
           <div className="flex w-full justify-end mb-10">
             <button
               className="bg-blue-500 text-white px-4 py-2 rounded-sm"
@@ -26,10 +83,66 @@ function EditFilm({ setEditFilm, id }) {
             </button>
           </div>
 
-          <video 
-          controls
-          className="w-full h-80 mb-4"
-          src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+          <video
+            controls
+            className="w-full h-80 mb-4"
+            src={film.video.url} />
+
+          <div
+          onClick={() => openModel('video')}
+          className="flex justify-end mb-4">
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-sm mb-4 active:bg-blue-700">
+              Edit Video
+            </button>
+          </div>
+
+          {openModelVideo && (
+            <main className="absolute top-0 left-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+                {openModelVideo && (
+                  <div className="fixed inset-0 z-50 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center">
+                    <div className="bg-white rounded-lg shadow-lg p-8 w-[90%] max-w-xl relative">
+                      <button
+                        className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 mb-5"
+                        onClick={() => setOpenModelVideo(false)}
+                      >
+                        <IoMdClose size={24} />
+                      </button>
+
+                      <form onSubmit={handelVideoChange} className="w-full my-5">
+                        <p>Upload Video</p>
+                        <label htmlFor="videoinput">
+                          {video && (
+                            <div className="mb-4">
+                              <video
+                                controls
+                                className="w-full h-80 mb-4"
+                                src={URL.createObjectURL(video)}
+                              />
+                            </div>
+                          )}       
+                          {!video && (
+                            <div className="flex items-center justify-center w-full h-80 mb-4 border border-dashed border-gray-400 rounded-lg">
+                              <IoMdAddCircle size={24} />
+                            </div>
+                          )}
+                        </label>
+                        <input 
+                        type="file" 
+                        id="videoinput"
+                        accept="video/*"
+                        onChange={(e => {
+                          setVideo(e.target.files[0])
+                        })} 
+                        className="hidden" />
+                        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-sm">
+                          Submit
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                )}
+            </main>
+          )}
 
           <p className="text-3xl font-semibold mb-3">{film?.name}</p>
           <p className="text-lg text-gray-700 font-medium mb-3">{film?.description}</p>
@@ -44,8 +157,68 @@ function EditFilm({ setEditFilm, id }) {
           </div>
 
           <div className="flex justify-end">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-sm active:bg-blue-700">Edit</button>
+            <button
+              onClick={() => openModel('details')}
+              className="bg-blue-500 text-white px-4 py-2 rounded-sm active:bg-blue-700">Edit Details</button>
           </div>
+
+          {openModelDetals && (
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center">
+              <div className="bg-white rounded-lg shadow-lg p-8 w-[90%] max-w-xl relative">
+                {/* Close Button */}
+                <button
+                  className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
+                  onClick={() => setOpenModelDetails(false)}
+                >
+                  <IoMdClose size={24} />
+                </button>
+
+                <h2 className="text-xl font-semibold text-gray-700 mb-6">Edit Film Details</h2>
+
+                <form onSubmit={handelChangeDetails} className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Film Name"
+                    onChange={(e) => setFimlBasicDetails({ ...fimlBasicDetails, name: e.target.value })}
+                    defaultValue={film.name}
+                    className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+
+                  <textarea
+                    cols={4}
+                    onChange={(e) => setFimlBasicDetails({ ...fimlBasicDetails, description: e.target.value })}
+                    placeholder="Description"
+                    defaultValue={film.description}
+                    className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+
+                  <input
+                    type="date"
+                    onChange={(e) => setFimlBasicDetails({ ...fimlBasicDetails, date: e.target.value })}
+                    defaultValue={film.date?.slice(0, 10)}
+                    className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+
+                  <input
+                    type="text"
+                    onChange={(e) => setFimlBasicDetails({ ...fimlBasicDetails, location: e.target.value })}
+                    placeholder="Location"
+                    defaultValue={film.location}
+                    className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+
+                  <div className="flex justify-end pt-4">
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white font-semibold px-6 py-2 rounded hover:bg-blue-700 transition duration-200"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
           <p className="text-lg text-gray-700 font-semibold">Photos</p>
 
@@ -74,11 +247,58 @@ function EditFilm({ setEditFilm, id }) {
             <img src={film?.template} alt="" className="w-1/2 rounded-sm" />
           </div>
           <div className="flex justify-end">
-            <button 
-            className="bg-blue-500 text-white px-4 py-2 rounded-sm active:bg-blue-700">
+            <button
+              onClick={() => openModel('template')}
+              className="bg-blue-500 text-white px-4 py-2 rounded-sm active:bg-blue-700">
               Edit Template
             </button>
           </div>
+
+          {openModelTemplate && (
+            <main className="fixed inset-0 z-50 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center">
+              <div className="bg-white rounded-lg shadow-lg p-8 w-[90%] max-w-xl relative">
+                <button
+                  className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 mb-5"
+                  onClick={() => setOpenModelTemplate(false)}
+                >
+                  <IoMdClose size={24} />
+                </button>
+
+                <form className="mt-5" onSubmit={handelTemplateSubmit}>
+                  <label htmlFor="template">
+                    {template && (
+                      <img src={template} alt="" className="w-full rounded-sm" />
+                    )}
+                    {!template && (
+                      <div className="w-full h-60 border border-gray-300 rounded-sm flex items-center justify-center">
+                        <IoMdAddCircle size={24} />
+                      </div>
+                    )}
+                  </label>
+                  <input
+                    accept="image/*"
+                    id="template"
+                    className="hidden"
+                    onChange={() => {
+                      const fileInput = document.getElementById('template');
+                      const file = fileInput.files[0];
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        setTemplate(reader.result);
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                    type="file" />
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-sm active:bg-blue-700 mt-5"
+                  >
+                    {template ? "Change Template" : "Upload Template"}
+                  </button>
+                </form>
+              </div>
+            </main>
+          )}
           <Toaster />
         </main>
       )}

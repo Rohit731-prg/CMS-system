@@ -19,7 +19,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json({
-    limit: '50mb'
+    limit: '500mb'
 }));
 
 app.use('/api/Admin', AdminRouter);

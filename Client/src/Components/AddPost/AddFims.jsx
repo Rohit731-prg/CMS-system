@@ -4,7 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { IoMdAdd } from "react-icons/io";
 
 function AddFims() {
-  const [state, SetState] = useState(1);
+  const [state, SetState] = useState(0);
   const [details, setDetails] = useState({
     name: "",
     description: "",
@@ -17,15 +17,17 @@ function AddFims() {
 
   const handelSubmit = async (e) => {
     e.preventDefault();
-
-    if (state == 0) {
       const res = await useFilmStore.getState().setFilms(details);
       if (res) SetState(1);
-    } else if (state == 1) {
-      const res = await useFilmStore.getState().setVideo(video);
-      if (res) SetState(2);
-    }
   };
+
+  const handelVideoSubmit = async (e) => {
+    e.preventDefault();
+
+    console.log('video');
+    const res = await useFilmStore.getState().uploadVideo(video);
+    if (res) SetState(2);
+  }
 
   const setTemplate = (e) => {
     const file = e.target.files[0];
@@ -193,10 +195,12 @@ function AddFims() {
             Step 2: Upload Video
           </p>
 
-          <form className="">
+          <form onSubmit={handelVideoSubmit} className="">
             {video && (
-              <div className="w-full h-40 mb-2">
-                <video src={video} width="1440" height="680" />
+              <div className="w-full h-80 mb-2">
+                <video controls className="w-full h-full object-cover">
+                  <source src={URL.createObjectURL(video)} type={video.type} />
+                </video>
               </div>
             )}
             {!video && (
@@ -208,7 +212,7 @@ function AddFims() {
                 </div>
               </label>
             )}
-            <input id="video" className="hidden" accept="video/*" type="file" />
+            <input id="video" className="hidden" accept="video/*" type="file" onChange={(e) => setVideo(e.target.files[0])} />
 
             <button
               type="submit"

@@ -35,24 +35,35 @@ export const createFilms = async (req, res) => {
 
 export const uploadVideo = async (req, res) => {
   const { id } = req.params;
+  console.log("File received:", req.file.path);
   if (!req.file) return res.status(400).send({ message: "Video is required" });
   try {
     const film = await Film.findById(id);
     if (!film) return res.status(404).send({ message: "Film not found" });
 
+    console.log("Uploading to Cloudinary...");
     const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "video",
       folder: "videos",
     });
+    console.log("Cloudinary upload complete:", result.secure_url);
 
     fs.unlinkSync(req.file.path);
+    console.log("Temporary file deleted.");
 
-    const updateFilm = await findByIdAndUpdate(id, {
-      video: result.secure_url,
+    const updateFilm = await Film.findByIdAndUpdate(id, {
+      video: {
+        url: result.secure_url,
+        public_key: result.public_id,
+      },
       video_ID: result.public_id,
     });
 
-    if (!updateFilm) return res.status(404).send({ message: "Film not found" });
+
+    if (!updateFilm) {
+      console.error("Update failed: no film found to update.");
+      return res.status(404).send({ message: "Film not found" });
+    }
 
     res.status(200).json({ message: "Video uploaded successfully" });
   } catch (error) {
@@ -126,10 +137,12 @@ export const deleteFilm = async (req, res) => {
     const result = await cloudinary.uploader.destroy(film.template_ID);
     if (result.result != "ok") return res.status(400).send({ message: "Error deleting template" });
 
-    const videoResult = await cloudinary.uploader.destroy(film.video_ID);
-    if (videoResult.result != "ok")
-      return res.status(400).send({ message: "Error deleting video" });
+    const resultVideo = await cloudinary.uploader.destroy(film.video_ID, {
+      resource_type: "video",
+    });
 
+    if (resultVideo.result != "ok")
+      return res.status(400).send({ message: "Error deleting video" });
     if (Array.isArray(film.photos)) {
       for (let photo of film.photos) {
         const result = await cloudinary.uploader.destroy(photo.public_key);
@@ -190,6 +203,37 @@ export const updatetemplate = async (req, res) => {
 
     res.status(200).json({ message: "Template updated successfully" });
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateVideo = async (req, res) => {
+  const { id } = req.params;
+  const video = req.file;
+
+  if (!video) return res.status(400).send({ message: "Video is required" });
+
+  try {
+    const film = await Film.findById(id);
+    if (!film) return res.status(404).send({ message: "Film not found" });
+
+    const result = await cloudinary.uploader.upload(video.path, {
+      resource_type: "video",
+      folder: "videos",
+    });
+
+    await Film.findByIdAndUpdate(id, {
+      video: {
+        url: result.secure_url,
+        public_key: result.public_id,
+      },
+      video_ID: result.public_id, // Optional
+    });
+
+    res.status(200).json({ message: "Video updated successfully" });
+
+  } catch (error) {
+    console.error("Upload error:", error);
     res.status(500).json({ message: error.message });
   }
 };
