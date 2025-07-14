@@ -5,6 +5,7 @@ const pressSchema = new Schema({
     description: { type: String, required: true },
     image: { type: String, required: true },
     image_ID: { type: String, default: '' },
+    link: { type: String, required: true },
 }, {
     timestamps: true
 });

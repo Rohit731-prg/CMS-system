@@ -5,12 +5,19 @@ import useBlogStore from "../../store/blogStore";
 import Lottie from "lottie-react";
 import loading from "../../../public/loader.json";
 import { Toaster } from "react-hot-toast";
+import { FaSearch } from "react-icons/fa";
 
 function Blogs() {
   const blogs = useBlogStore((state) => state.blog);
   const setBlogInStore = useBlogStore((state) => state.setBlog);
-  const deleteBlog = useBlogStore((state) => state.deleteBlog);
   const getBlogs = useBlogStore((state) => state.getBlogs);
+  const [searchQuery, setSearchQuery] = useState("");
+  const filterBlogs = blogs?.filter((blog) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      blog.name.toLowerCase().includes(query)
+    )
+  })
 
   const [blog, setBlog] = useState({
     name: "",
@@ -50,21 +57,30 @@ function Blogs() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
+    <main className="min-h-screen bg-gray-100 p-6 font-inter">
       <section className="max-w-6xl mx-auto mb-10">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">Blogs</h2>
-          <button
-            onClick={() => {
-              setShowForm((prev) => !prev);
-              if (!showForm) {
-                setBlog({ name: "", description: "", link: "", image: null });
-              }
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            {showForm ? "Cancel" : "Add Blog"}
-          </button>
+        <div className="mb-5">
+          <div className="bg-white my-3 px-10 py-2 shadow-2xl rounded-lg flex flex-row gap-3 items-center">
+            <p><FaSearch /></p>
+            <input
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="outline-none border-none w-full"
+              placeholder="Search blog by name..."
+              type="text" />
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={() => {
+                setShowForm((prev) => !prev);
+                if (!showForm) {
+                  setBlog({ name: "", description: "", link: "", image: null });
+                }
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              {showForm ? "Cancel" : "Add Blog"}
+            </button>
+          </div>
         </div>
 
         {showForm && (
@@ -136,59 +152,40 @@ function Blogs() {
           </form>
         )}
 
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="px-4 py-2 w-full sm:w-64 border rounded-lg bg-white focus:ring focus:ring-blue-500"
-          />
-        </div>
-
         {blogs ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogs.map((b) => (
-              <div
-                key={b._id}
-                className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
-              >
-                {b.image && (
-                  <img
-                    src={b.image}
-                    alt={b.name}
-                    className="w-full h-44 object-cover rounded-md mb-3"
-                  />
-                )}
-                <h4 className="text-lg font-semibold">{b.name}</h4>
-                <p className="text-gray-600 text-sm mb-2">
-                  {b.description?.length > 60
-                    ? b.description.slice(0, 60) + "..."
-                    : b.description}
-                </p>
-                <p
-                  onClick={() => window.open(b.link, "_blank")}
-                  className="text-blue-500 text-sm cursor-pointer break-all mb-3"
-                >
-                  {b.link?.length > 30 ? b.link.slice(0, 30) + "..." : b.link}
-                </p>
-                <div className="flex justify-end gap-6">
-                  <button
-                    onClick={() => handleEdit(b)}
-                    className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
-                  >
-                    <FaEdit />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteBlog(b._id)}
-                    className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
-                  >
-                    <MdDelete />
-                    Delete
-                  </button>
-                </div>
-              </div>
+          <main className="">
+            <p className="font-semibold text-2xl mb-5">All Blogs</p>
+
+            {filterBlogs.map((blog) => (
+              <section key={blog._id} className="flex flex-row mb-5 gap-5 rounded-sm p-3 bg-white shadow">
+                <section className="w-2/3">
+                  <p className="font-medium text-xl ">{blog.name}</p>
+                  <p className="my-2 text-sm text-gray-600">
+                    {blog.description.length > 450 ? blog.description.slice(0, 450) + "..." : blog.description}
+                  </p>
+
+                  <p className="my-2 text-lg font-medium">Link  : <span className="text-blue-600">{blog.link.length > 50 ? blog.link.slice(0, 50) + "..." : blog.link}</span></p>
+
+                  <div className="flex flex-row gap-3">
+                    <button 
+                    onClick={() => handleEdit(blog)}
+                    className="text-sm font-semibold text-white bg-gray-800 flex flex-row gap-3 px-5 py-2 rounded-full items-center">
+                      <FaEdit /> Edit
+                    </button>
+                    <button
+                    onClick={() => useBlogStore.getState().deleteBlog(blog._id)}
+                    className="text-sm font-semibold text-white bg-red-600 flex flex-row gap-3 px-5 py-2 rounded-full items-center"
+                    >
+                      <MdDelete /> Delete
+                    </button>
+                  </div>
+                </section>
+                <section className="w-1/3">
+                  <img src={blog.image} alt="" className="w-full h-60 object-cover rounded-sm" />
+                </section>
+              </section>
             ))}
-          </div>
+          </main>
         ) : (
           <div className="flex justify-center mt-20">
             <Lottie animationData={loading} loop className="w-40 h-40" />

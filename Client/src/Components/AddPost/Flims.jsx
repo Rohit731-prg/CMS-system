@@ -19,6 +19,11 @@ function Flims() {
     setId(id);
     setEditFilm(true);
   };
+
+  const [search, setSearch] = useState('');
+  const filterFilm = films?.filter((film) => {
+    return film.name.toLowerCase().includes(search.toLowerCase());
+  })
   return (
     <>
       {editFilm && <EditFilm setEditFilm={setEditFilm} id={id} />}
@@ -26,6 +31,8 @@ function Flims() {
         <main className="min-h-screen bg-gray-100 p-6">
           <nav className="flex flex-row gap-10 px-10">
             <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
               className="px-4 py-2 rounded-sm outline-none focus:ring-1 focus:ring-blue-500 bg-white"
               type="text"
@@ -46,7 +53,7 @@ function Flims() {
 
               <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 px-4 md:px-10 py-6">
                 {films && films.length > 0 ? (
-                  films.map((film) => (
+                  filterFilm.map((film) => (
                     <div
                       key={film._id}
                       className="relative rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 cursor-pointer"

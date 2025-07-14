@@ -5,6 +5,7 @@ import loading from "../../../public/loader.json";
 import { MdDelete } from "react-icons/md";
 import { FaEdit, FaCamera } from "react-icons/fa";
 import { Toaster } from "react-hot-toast";
+import { FaSearch } from "react-icons/fa";
 import { Dialog } from "@headlessui/react";
 
 function Press() {
@@ -17,6 +18,7 @@ function Press() {
   const [press, setPress] = useState({
     company_name: "",
     description: "",
+    link: "",
     image: null,
   });
 
@@ -59,11 +61,19 @@ function Press() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
+    <main className="min-h-screen bg-gray-100 p-6 font-inter">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-          <h2 className="text-2xl font-bold">Press Coverage</h2>
-
+        <div className="flex items-center mb-4 bg-white px-5 py-2 rounded-lg gap-3 shadow-xl">
+          <FaSearch />
+          <input
+            placeholder="Search by Company Name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border-none outline-none w-full"
+            type="text"
+          />
+        </div>
+        <div className="w-full flex justify-end mb-5">
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
@@ -71,15 +81,6 @@ function Press() {
             {showForm ? "Close Form" : "Add Press"}
           </button>
         </div>
-
-        <input
-          type="text"
-          placeholder="Search by company name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-4 py-2 w-full sm:w-64 border rounded-lg bg-white focus:ring focus:ring-blue-500 mb-5"
-        />
-
         {showForm && (
           <section className="bg-white p-6 rounded-2xl shadow mb-10">
             <form onSubmit={handleSubmit} className="grid gap-4">
@@ -101,6 +102,12 @@ function Press() {
                 className="px-4 py-2 border rounded-lg resize-none"
                 rows={4}
               />
+              <input
+                placeholder="Link to Press"
+                value={press.link}
+                className="px-4 py-2 border rounded-lg"
+                onChange={(e) => setPress({ ...press, link: e.target.value })}
+                type="text" />
               <div className="flex items-center gap-4">
                 {press.image && (
                   <img
@@ -133,54 +140,51 @@ function Press() {
           </section>
         )}
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {presses ? (
-            presses.map((item) => (
-              <div
-                key={item._id}
-                className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition"
-              >
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt={item.company_name}
-                    className="w-full h-48 object-cover rounded-md mb-4"
-                  />
-                )}
-                <h4 className="text-lg font-semibold mb-1 text-blue-600">
-                  {item.company_name}
-                </h4>
-                <p className="text-gray-600 mb-4">
-                  {item.description.length > 50
-                    ? item.description.slice(0, 50) + "..."
-                    : item.description}
-                </p>
-                <div className="flex justify-end gap-4">
-                  <button
-                    onClick={() => {
-                      setEditingPress(item);
-                      setEditModal(true);
-                    }}
-                    className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                  >
-                    <FaEdit /> Edit
-                  </button>
-                  <button
-                    onClick={() =>
-                      usePressStore.getState().deletePress(item._id)
-                    }
-                    className="text-red-600 hover:text-red-800 flex items-center gap-1"
-                  >
-                    <MdDelete /> Delete
-                  </button>
-                </div>
+        <p className="font-semibold text-2xl mb-5">All Press</p>
+        <div className="w-full">
+          <div className="flex flex-col gap-5 w-full">
+            {presses ? (
+              filteredPresses.map((press) => (
+                <main key={press._id} className="flex flex-row w-full gap-5 shadow p-5 bg-white">
+                  <section className="w-2/3 ">
+                    <p className="font-medium text-xl">
+                      {press.company_name}
+                    </p>
+                    <p className="text-sm text-gray-600 my-2">
+                      {press.description.length < 450 ? press.description : `${press.description.slice(0, 450)}...`}
+                    </p>
+                    <p className="my-2 text-lg font-medium">Link  : <span className="text-blue-600">{press?.link.length > 50 ? press?.link.slice(0, 50) + "..." : press?.link}</span></p>
+
+                    <div className="flex items-center gap-4 flex-row mt-3">
+                      <button
+                        className="text-lg bg-red-600 hover:bg-red-700 transition flex flex-row gap-2 items-center px-5 py-1 rounded-full text-white"
+                        onClick={() => usePressStore.getState().deletePress(press._id)}
+                      >
+                        <MdDelete/>
+                        Delete
+                      </button>
+                      <button
+                        className="text-lg bg-blue-600 hover:bg-blue-700 transition flex flex-row gap-2 items-center px-5 py-1 rounded-full text-white"
+                        onClick={() => {
+                          setEditingPress(press);
+                          setEditModal(true);
+                        }}>
+                        <FaEdit/>
+                        Edit
+                      </button>
+                    </div>
+                  </section>
+                  <section className="w-1/3">
+                    <img src={press.image} alt="" className="w-full h-60 object-cover rounded-lg" />
+                  </section>
+                </main>
+              ))
+            ) : (
+              <div className="col-span-full flex justify-center">
+                <Lottie animationData={loading} loop className="w-40 h-40" />
               </div>
-            ))
-          ) : (
-            <div className="col-span-full flex justify-center">
-              <Lottie animationData={loading} loop className="w-40 h-40" />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
@@ -220,6 +224,12 @@ function Press() {
                   className="px-4 py-2 border rounded-lg resize-none"
                   rows={4}
                 />
+                <input
+                  placeholder="Link to Press"
+                  value={editingPress.link}
+                  className="px-4 py-2 border rounded-lg"
+                  onChange={(e) => setEditingPress({ ...editingPress, link: e.target.value })}
+                  type="text" />
                 <div className="flex items-center gap-4">
                   {editingPress.image && (
                     <img

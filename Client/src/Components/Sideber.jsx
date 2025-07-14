@@ -16,42 +16,12 @@ function Sidebar() {
   const logout = useUserStore((state) => state.logout);
 
   const navList = [
-    {
-      id: 0,
-      icon: <MdDashboard size={20} />,
-      title: "Dashboard",
-      link: `/dashboardAdmin/${user?._id}`,
-    },
-    {
-      id: 1,
-      icon: <IoMdAddCircleOutline size={20} />,
-      title: "New Post",
-      link: `/post/${user?._id}`,
-    },
-    {
-      id: 2,
-      icon: <IoIosNotifications size={20} />,
-      title: "Customers",
-      link: `/customer/${user?._id}`,
-    },
-    {
-      id: 3,
-      icon: <TiUserAdd size={20} />,
-      title: "Add User",
-      link: `/adduser/${user?._id}`,
-    },
-    {
-      id: 4,
-      icon: <FaUsers size={20} />,
-      title: "Crew",
-      link: `/crew/${user?._id}`,
-    },
-    {
-      id: 5,
-      icon: <MdFeedback size={20} />,
-      title: "Feedback",
-      link: `/feedback/${user?._id}`,
-    },
+    { id: 0, icon: <MdDashboard size={20} />, title: "Dashboard", link: `/dashboardAdmin/${user?._id}` },
+    { id: 1, icon: <IoMdAddCircleOutline size={20} />, title: "New Post", link: `/post/${user?._id}` },
+    { id: 2, icon: <IoIosNotifications size={20} />, title: "Customers", link: `/customer/${user?._id}` },
+    { id: 3, icon: <TiUserAdd size={20} />, title: "Add User", link: `/adduser/${user?._id}` },
+    { id: 4, icon: <FaUsers size={20} />, title: "Crew", link: `/crew/${user?._id}` },
+    { id: 5, icon: <MdFeedback size={20} />, title: "Feedback", link: `/feedback/${user?._id}` },
   ];
 
   const handleLogout = () => {
@@ -60,18 +30,17 @@ function Sidebar() {
   };
 
   return (
-    <aside className="w-64 h-auto bg-white shadow-md flex flex-col font-inter">
+    <aside className="w-full md:w-64 bg-white shadow-md flex flex-col font-inter">
       {/* Logo */}
-      <div className="p-6 border-b border-gray-200 flex justify-center">
-        <img src={logo} alt="Logo" className="w-28 object-contain" />
+      <div className="p-4 md:p-6 border-b border-gray-200 flex justify-center">
+        <img src={logo} alt="Logo" className="w-24 md:w-28 object-contain" />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col justify-between p-4">
+      <nav className="flex-1 flex flex-col justify-between p-4 space-y-1">
         <div className="space-y-1">
           {navList.map((nav) => {
             const isActive = location.pathname.includes(nav.link.split("/")[1]);
-
             return (
               <button
                 key={nav.id}
@@ -90,7 +59,7 @@ function Sidebar() {
         </div>
 
         {/* Logout */}
-        <div className="pt-4 border-t border-gray-200 font-inter">
+        <div className="pt-4 border-t border-gray-200">
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left text-red-600 hover:bg-red-100 transition-all"

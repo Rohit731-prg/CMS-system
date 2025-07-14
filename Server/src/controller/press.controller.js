@@ -2,8 +2,8 @@ import cloudinary from "../../config/cloudinary.js";
 import Press from "../model/press.model.js";
 
 export const createPress = async (req, res) => {
-    const { company_name, description, image } = req.body;
-    if (!company_name || !description || !image) {
+    const { company_name, description, image, link } = req.body;
+    if (!company_name || !description || !image || !link) {
         return res.status(400).send({ message: "All fields are required" });
     }
     try {
@@ -14,7 +14,7 @@ export const createPress = async (req, res) => {
         const url = image_URL.secure_url;
         const image_ID = image_URL.public_id;
 
-        const newPress = new Press({ company_name, description, image: url, image_ID });
+        const newPress = new Press({ company_name, description, image: url, image_ID, link });
         await newPress.save();
 
         res.status(201).json({ message: "Press created successfully" });

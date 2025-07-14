@@ -16,6 +16,8 @@ const useBlogStore = create((set, get) => ({
         success: (res) => res.data.message || 'Blog created successfully',
         error: (err) => err?.response?.data?.message || 'Failed to create blog',
       });
+
+      get().getBlogs();
     } catch (error) {
       console.error(error);
     }
@@ -61,8 +63,7 @@ const useBlogStore = create((set, get) => ({
         error: (err) => err?.response?.data?.message || 'Failed to delete blog',
       })
 
-      set({ blog: res.data.blogs });
-      set({ count: res.data.count });
+      get().getBlogs();
     } catch (error) {
       console.error(error);
     }

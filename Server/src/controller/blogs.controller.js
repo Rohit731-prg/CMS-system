@@ -25,7 +25,7 @@ export const createBlogs = async (req, res) => {
 
 export const getAllBlogs = async (req, res) => {
     try {
-        const blogs = await Blog.find();
+        const blogs = await Blog.find().sort({ createdAt: -1 });
         const limitBlog = await Blog.find().limit(5);
         const count = await Blog.countDocuments();
         res.status(200).json({ blogs: blogs,count: count, limitBlog: limitBlog });

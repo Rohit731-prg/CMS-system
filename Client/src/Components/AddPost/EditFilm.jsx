@@ -226,7 +226,7 @@ function EditFilm({ setEditFilm, id }) {
             {film?.photos &&
               film?.photos.map((photo, index) => (
                 <div key={index}>
-                  <img src={photo.url} alt={`Photo ${index + 1}`} className="w-full h-60 rounded-sm object-cover" />
+                  <img src={photo.url} alt={`Photo ${index + 1}`} className="w-full h-60 rounded-lg object-cover" />
                 </div>
               ))}
           </div>
