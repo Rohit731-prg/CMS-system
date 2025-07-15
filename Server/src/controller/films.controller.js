@@ -237,3 +237,35 @@ export const updateVideo = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const updatePhotos = async (req, res) => {
+  const { id } = req.params;
+  const { photos } = req.body;
+  if (!photos) return res.status(400).send({ message: "Photos are required" });
+  try {
+    const film = await Film.findById(id);
+    if (!film) return res.status(404).send({ message: "Film not found" });
+
+    let image_url = "";
+    let image_id = "";
+
+    let newPhots = [];
+
+    if (Array.isArray(photos)) {
+      for (let photo of photos) {
+        image_url = await cloudinary.uploader.upload(photo);
+        let url = image_url.secure_url;
+        image_id = image_url.public_id;
+
+        newPhots.push({ url, public_key: image_id });
+      }
+    }
+
+    await Film.findByIdAndUpdate(id, {
+      photos: newPhots,
+    });
+    res.status(200).json({ message: "Photos uploaded successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

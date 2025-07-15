@@ -5,6 +5,7 @@ import {
   editFilmDetails,
   getAllTemplate,
   getFilm,
+  updatePhotos,
   updatetemplate,
   updateVideo,
   uploadPhotos,
@@ -23,5 +24,6 @@ router.delete('/filmDelete/:id', deleteFilm);
 router.put('/updateFilmDetails/:id', editFilmDetails);
 router.put('/updateTemplate/:id', updatetemplate);
 router.put('/updateVideo/:id/video', upload.single("video"), updateVideo);
+router.put('/updatePhotos/:id', updatePhotos);
 
 export default router;

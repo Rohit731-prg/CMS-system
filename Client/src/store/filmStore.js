@@ -199,7 +199,26 @@ const useFilmStore = create((set, get) => ({
       console.error("Video update failed:", error);
       return null;
     }
+  },
+
+  updatePhotos: async (id, images) => {
+    try {
+      const res = await toast.promise(
+        axios.put(`/film/updatePhotos/${id}`, { photos: images }),
+        {
+          loading: "Updating photos...",
+          success: (res) => res.data.message || "Photos updated successfully",
+        }
+      );
+
+      await get().getFilmByID(id);
+      return res;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to update photos");
+      console.error("Photo update failed:", error);
+    }
   }
+
 }));
 
 export default useFilmStore;

@@ -56,19 +56,55 @@ function EditFilm({ setEditFilm, id }) {
     await useFilmStore.getState().updateBasicDetails(film._id, fimlBasicDetails);
     setOpenModelDetails(false);
   };
+
   const handelTemplateSubmit = async (e) => {
     e.preventDefault();
     console.log(template);
     await useFilmStore.getState().updateTemplate(film._id, template);
     setOpenModelTemplate(false);
   };
+
   const handelVideoChange = async (e) => {
     e.preventDefault();
     console.log(video);
     await useFilmStore.getState().updateVideo(film._id, video);
     setVideo(null);
     setOpenModelVideo(false);
-  }
+  };
+
+  const [photosArr, setPhotosArr] = useState([]);
+  const [images, setImages] = useState(['']); // default: one input
+
+  // Handle submit
+  const handelChangePhotos = async (e) => {
+    e.preventDefault();
+
+    // Filter out invalid or empty base64 data
+    const validImages = images.filter(img => typeof img === 'string' && img.trim().startsWith('data:image/'));
+
+    if (validImages.length === 0) {
+      toast.error("Please upload at least one valid photo.");
+      return;
+    }
+
+    await useFilmStore.getState().updatePhotos(film._id, validImages);
+    setOpenModelPhotos(false);
+  };
+
+  // Handle file input change
+  const updateSelectedImage = (e, index) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const updatedImages = [...images];
+        updatedImages[index] = reader.result; // base64 string
+        setImages(updatedImages);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   return (
     <>
@@ -89,8 +125,8 @@ function EditFilm({ setEditFilm, id }) {
             src={film.video.url} />
 
           <div
-          onClick={() => openModel('video')}
-          className="flex justify-end mb-4">
+            onClick={() => openModel('video')}
+            className="flex justify-end mb-4">
             <button className="bg-blue-500 text-white px-4 py-2 rounded-sm mb-4 active:bg-blue-700">
               Edit Video
             </button>
@@ -98,49 +134,49 @@ function EditFilm({ setEditFilm, id }) {
 
           {openModelVideo && (
             <main className="absolute top-0 left-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-                {openModelVideo && (
-                  <div className="fixed inset-0 z-50 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center">
-                    <div className="bg-white rounded-lg shadow-lg p-8 w-[90%] max-w-xl relative">
-                      <button
-                        className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 mb-5"
-                        onClick={() => setOpenModelVideo(false)}
-                      >
-                        <IoMdClose size={24} />
-                      </button>
+              {openModelVideo && (
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center">
+                  <div className="bg-white rounded-lg shadow-lg p-8 w-[90%] max-w-xl relative">
+                    <button
+                      className="absolute top-3 right-3 text-gray-600 hover:text-gray-800 mb-5"
+                      onClick={() => setOpenModelVideo(false)}
+                    >
+                      <IoMdClose size={24} />
+                    </button>
 
-                      <form onSubmit={handelVideoChange} className="w-full my-5">
-                        <p>Upload Video</p>
-                        <label htmlFor="videoinput">
-                          {video && (
-                            <div className="mb-4">
-                              <video
-                                controls
-                                className="w-full h-80 mb-4"
-                                src={URL.createObjectURL(video)}
-                              />
-                            </div>
-                          )}       
-                          {!video && (
-                            <div className="flex items-center justify-center w-full h-80 mb-4 border border-dashed border-gray-400 rounded-lg">
-                              <IoMdAddCircle size={24} />
-                            </div>
-                          )}
-                        </label>
-                        <input 
-                        type="file" 
+                    <form onSubmit={handelVideoChange} className="w-full my-5">
+                      <p>Upload Video</p>
+                      <label htmlFor="videoinput">
+                        {video && (
+                          <div className="mb-4">
+                            <video
+                              controls
+                              className="w-full h-80 mb-4"
+                              src={URL.createObjectURL(video)}
+                            />
+                          </div>
+                        )}
+                        {!video && (
+                          <div className="flex items-center justify-center w-full h-80 mb-4 border border-dashed border-gray-400 rounded-lg">
+                            <IoMdAddCircle size={24} />
+                          </div>
+                        )}
+                      </label>
+                      <input
+                        type="file"
                         id="videoinput"
                         accept="video/*"
                         onChange={(e => {
                           setVideo(e.target.files[0])
-                        })} 
+                        })}
                         className="hidden" />
-                        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-sm">
-                          Submit
-                        </button>
-                      </form>
-                    </div>
+                      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-sm">
+                        Submit
+                      </button>
+                    </form>
                   </div>
-                )}
+                </div>
+              )}
             </main>
           )}
 
@@ -232,8 +268,53 @@ function EditFilm({ setEditFilm, id }) {
           </div>
 
           <div className="flex justify-end">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-sm active:bg-blue-700">Edit Photos</button>
+            <button
+              onClick={() => setOpenModelPhotos(true)}
+              className="bg-blue-500 text-white px-4 py-2 rounded-sm active:bg-blue-700">Edit Photos</button>
           </div>
+
+          {openModelPhotos && (
+            <main className="fixed inset-0 z-50 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center">
+              <div className="bg-white rounded-lg shadow-lg p-8 w-[90%] max-w-xl relative">
+                <button
+                  className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
+                  onClick={() => setOpenModelPhotos(false)}
+                >
+                  <IoMdClose size={24} />
+                </button>
+
+                <h2 className="text-xl font-semibold text-gray-700 mb-6">Edit Film Details</h2>
+
+                <form className="flex flex-col gap-4" onSubmit={handelChangePhotos}>
+                  {photosArr.map((photo, index) => (
+                    <input
+                      type="file"
+                      onChange={(e) => updateSelectedImage(e, index)}
+                      key={index}
+                      accept="image/*"
+                      className="border border-gray-300 rounded px-4 py-2 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition"
+                    />
+                  ))}
+
+                  <button
+                    onClick={() => setPhotosArr([...photosArr, ''])}
+                    type="button"
+                    className="self-start bg-gray-100 text-gray-800 font-medium px-4 py-2 rounded border border-gray-300 hover:bg-gray-200 transition"
+                  >
+                    Add Photos
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="bg-blue-600 text-white font-semibold px-6 py-2 rounded hover:bg-blue-700 transition duration-200"
+                  >
+                    Submit
+                  </button>
+                </form>
+              </div>
+            </main>
+          )}
+
 
           <p className="text-lg text-gray-700 font-semibold mt-10">Template</p>
           <div className="flex flex-row justify-between mb-10">
